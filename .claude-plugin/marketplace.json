@@ -10,7 +10,7 @@
     {
       "name": "orchestra",
       "source": "./plugins/orchestra",
-      "description": "Fable orchestrates; Opus 5.5 and Codex GPT-6-Astra run as subagents."
+      "description": "Fable orchestrates; Opus 5.5 handles judgment work; Codex on GPT-6-Astra implements (with codex@openai-codex)."
     }
   ]
 }

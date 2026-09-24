@@ -1,19 +1,20 @@
 #!/usr/bin/env bash
-# Local install: makes every repo on this machine use the orchestra setup.
-#   - registers this marketplace and installs the plugin at user scope
-#   - sets model/env/permissions in ~/.claude/settings.json
-#   - installs Codex CLI if missing
+# Local install: every repo on this machine gets the orchestra setup.
+#   - registers both marketplaces and installs orchestra + codex plugins at user scope
+#   - sets the main and subagent models in ~/.claude/settings.json
+#   - installs the Codex CLI if missing
 set -euo pipefail
 here="$(cd "$(dirname "$0")" && pwd)"
 
 claude plugin marketplace add "$here"
+claude plugin marketplace add openai/codex-plugin-cc
 claude plugin install orchestra@claude-orchestra --scope user
+claude plugin install codex@openai-codex --scope user
 python3 "$here/merge-settings.py" "$HOME/.claude/settings.json" --no-plugin
 
-if ! command -v codex >/dev/null 2>&1; then
-  npm install -g @openai/codex
+command -v codex >/dev/null 2>&1 || npm install -g @openai/codex
+"$here/plugins/orchestra/hooks/codex-setup.sh"
+if [[ ! -f "${CODEX_HOME:-$HOME/.codex}/auth.json" ]]; then
+  echo "Next: run 'codex login'."
 fi
-if [[ ! -f "${CODEX_HOME:-$HOME/.codex}/auth.json" && -z "${OPENAI_API_KEY:-}" ]]; then
-  echo "Next: run 'codex login' so the astra subagent can reach GPT-6-Astra."
-fi
-echo "Done. Restart Claude Code."
+echo "Done. Restart Claude Code, then run /codex:setup once to confirm Codex is ready."
