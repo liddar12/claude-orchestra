@@ -1,0 +1,6 @@
+{
+  "name": "orchestra",
+  "version": "0.1.0",
+  "description": "Fable orchestrates; Opus 5.5 (opus-worker) and Codex GPT-6-Astra (astra) run as subagents.",
+  "author": { "name": "liddar12" }
+}

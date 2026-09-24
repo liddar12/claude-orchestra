@@ -1,0 +1,18 @@
+{
+  "model": "claude-fable-5-1",
+  "env": {
+    "CLAUDE_CODE_SUBAGENT_MODEL": "claude-opus-5-5",
+    "CODEX_ASTRA_MODEL": "gpt-6-astra"
+  },
+  "permissions": {
+    "allow": ["Bash(astra:*)"]
+  },
+  "extraKnownMarketplaces": {
+    "claude-orchestra": {
+      "source": { "source": "github", "repo": "liddar12/claude-orchestra" }
+    }
+  },
+  "enabledPlugins": {
+    "orchestra@claude-orchestra": true
+  }
+}

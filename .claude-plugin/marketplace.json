@@ -1,0 +1,16 @@
+{
+  "name": "claude-orchestra",
+  "owner": {
+    "name": "liddar12"
+  },
+  "metadata": {
+    "description": "Shared Claude Code orchestration: Fable manages, Opus 5.5 and Codex GPT-6-Astra run as subagents."
+  },
+  "plugins": [
+    {
+      "name": "orchestra",
+      "source": "./plugins/orchestra",
+      "description": "Fable orchestrates; Opus 5.5 and Codex GPT-6-Astra run as subagents."
+    }
+  ]
+}
