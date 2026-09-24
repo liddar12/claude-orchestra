@@ -1,6 +1,6 @@
 {
   "name": "orchestra",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Fable orchestrates; Opus 5.5 (opus-worker) handles judgment work; Codex on GPT-6-Astra implements via the codex@openai-codex plugin.",
   "author": {
     "name": "liddar12"

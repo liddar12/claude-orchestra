@@ -1,18 +1,13 @@
 #!/usr/bin/env python3
 """Merge templates/settings.json into a Claude Code settings file, keeping existing keys.
 
-Usage: merge-settings.py <target settings.json> [--no-plugin]
-  --no-plugin  skip extraKnownMarketplaces/enabledPlugins (used for ~/.claude,
-               where install.sh registers the plugin through the CLI instead)
+Usage: merge-settings.py <target settings.json>
 """
 import json, os, sys
 
 here = os.path.dirname(os.path.abspath(__file__))
 target = sys.argv[1]
 template = json.load(open(os.path.join(here, "templates", "settings.json")))
-if "--no-plugin" in sys.argv:
-    template.pop("extraKnownMarketplaces", None)
-    template.pop("enabledPlugins", None)
 
 current = {}
 if os.path.exists(target):

@@ -1,20 +1,38 @@
 #!/usr/bin/env bash
-# Local install: every repo on this machine gets the orchestra setup.
-#   - registers both marketplaces and installs orchestra + codex plugins at user scope
-#   - sets the main and subagent models in ~/.claude/settings.json
-#   - installs the Codex CLI if missing
-set -euo pipefail
+# Installs the orchestra setup at user scope, so every repo on this machine or
+# cloud environment uses it. Safe to re-run.
+#   Local:  git clone https://github.com/liddar12/claude-orchestra ~/claude-orchestra && ~/claude-orchestra/install.sh
+#   Cloud:  paste the same line into the environment's Setup script.
+# Steps:
+#   - registers both marketplaces and installs orchestra + codex plugins
+#   - sets the main and subagent model aliases in ~/.claude/settings.json
+#   - installs the Codex CLI if missing and pins its model
+set -uo pipefail
 here="$(cd "$(dirname "$0")" && pwd)"
+fail=0
 
-claude plugin marketplace add "$here"
-claude plugin marketplace add openai/codex-plugin-cc
-claude plugin install orchestra@claude-orchestra --scope user
-claude plugin install codex@openai-codex --scope user
-python3 "$here/merge-settings.py" "$HOME/.claude/settings.json" --no-plugin
+step() { echo "orchestra: $1"; }
+run() { "$@" >/dev/null 2>&1 || { echo "orchestra: failed: $*" >&2; fail=1; }; }
 
-command -v codex >/dev/null 2>&1 || npm install -g @openai/codex
-"$here/plugins/orchestra/hooks/codex-setup.sh"
-if [[ ! -f "${CODEX_HOME:-$HOME/.codex}/auth.json" ]]; then
-  echo "Next: run 'codex login'."
-fi
-echo "Done. Restart Claude Code, then run /codex:setup once to confirm Codex is ready."
+has_marketplace() { claude plugin marketplace list 2>/dev/null | grep -q "$1"; }
+has_plugin() { claude plugin list 2>/dev/null | grep -q "$1"; }
+
+step "marketplaces"
+has_marketplace claude-orchestra || run claude plugin marketplace add "$here"
+has_marketplace openai-codex || run claude plugin marketplace add openai/codex-plugin-cc
+run claude plugin marketplace update
+
+step "plugins"
+has_plugin orchestra@claude-orchestra || run claude plugin install orchestra@claude-orchestra --scope user
+has_plugin codex@openai-codex || run claude plugin install codex@openai-codex --scope user
+
+step "settings"
+run python3 "$here/merge-settings.py" "$HOME/.claude/settings.json"
+
+step "codex"
+command -v codex >/dev/null 2>&1 || run npm install -g @openai/codex
+CLAUDE_CODE_REMOTE="${CLAUDE_CODE_REMOTE:-}" "$here/plugins/orchestra/hooks/codex-setup.sh"
+[[ -f "${CODEX_HOME:-$HOME/.codex}/auth.json" ]] || echo "orchestra: Codex not logged in yet (run 'codex login', or set OPENAI_API_KEY in the cloud environment)."
+
+if [[ $fail -eq 0 ]]; then echo "orchestra: done"; else echo "orchestra: finished with errors" >&2; fi
+exit $fail

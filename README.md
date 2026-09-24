@@ -13,7 +13,7 @@ Codex runs through OpenAI's official plugin, [`codex@openai-codex`](https://gith
 
 ## One source of truth for models
 
-- Claude models: `templates/settings.json` uses aliases (`fable`, `opus`), so repos carry no model IDs. `orchestra:opus-worker` pins `claude-opus-5-5` in this plugin.
+- Claude models: `templates/settings.json` uses aliases (`fable`, `opus`) and lives in user settings, so repos carry no model IDs. `orchestra:opus-worker` pins `claude-opus-5-5` in this plugin.
 - Codex model: `~/.codex/config.toml`. The orchestra SessionStart hook writes `model = "gpt-6-astra"` and `model_reasoning_effort = "high"` there only if those keys are not already set. To change the Codex model, edit `ASTRA_MODEL` in `plugins/orchestra/hooks/codex-setup.sh` (for new machines and cloud sessions) or your own `~/.codex/config.toml`.
 
 ## What's in here
@@ -22,32 +22,27 @@ Codex runs through OpenAI's official plugin, [`codex@openai-codex`](https://gith
   - `agents/opus-worker.md`
   - `hooks/codex-setup.sh`: pins the Codex model; in cloud sessions also installs the Codex CLI and logs in from `OPENAI_API_KEY`
   - `hooks/routing.sh`: loads the routing rules into every session
-- `templates/settings.json`: models, both marketplaces, both plugins enabled
-- `install.sh`: local install for every repo on a machine
-- `apply-to-repo.sh`: adds the settings to one repo so cloud sessions pick it up
+- `install.sh`: user-scope install for every repo on a machine or cloud environment. Safe to re-run.
+- `templates/settings.json`: model aliases merged into `~/.claude/settings.json`
 
 ## Local CLI (every repo on this machine)
 
 ```sh
-git clone https://github.com/liddar12/claude-orchestra ~/claude-orchestra
-~/claude-orchestra/install.sh
+git clone https://github.com/liddar12/claude-orchestra ~/claude-orchestra && ~/claude-orchestra/install.sh
 codex login
 ```
 
-## Cloud sessions (claude.ai/code)
+## Cloud sessions (claude.ai/code, every repo in an environment)
 
-Cloud containers start clean, so each repo commits a small `.claude/settings.json`:
+Claude Code only trusts a GitHub-hosted plugin marketplace when it is declared in user or managed settings, not in a repo's `.claude/settings.json`. So cloud environments install this at user scope from their setup script.
 
-```sh
-~/claude-orchestra/apply-to-repo.sh /path/to/repo
-```
+In each cloud environment (environment menu in the session title bar, then Edit):
+1. Setup script: `git clone --depth 1 https://github.com/liddar12/claude-orchestra ~/claude-orchestra && ~/claude-orchestra/install.sh`
+2. Environment variable: `OPENAI_API_KEY`
+3. Network: allow `api.openai.com`
 
-Applied so far: `ayso`, `NFL2026`.
-
-Each cloud environment also needs, once:
-- Network: allow `api.openai.com`
-- Environment variable: `OPENAI_API_KEY`
+Pick Fable in the session's model picker. In cloud sessions the picker decides the main model, and `model` in settings does not override it.
 
 ## Changing the setup
 
-Edit here, bump `version` in `plugins/orchestra/.claude-plugin/plugin.json`, push. Local: `claude plugin update orchestra@claude-orchestra`. Cloud sessions fetch the latest when they start.
+Edit here, bump `version` in `plugins/orchestra/.claude-plugin/plugin.json`, push. Local: `git -C ~/claude-orchestra pull && claude plugin update orchestra@claude-orchestra`. Cloud sessions clone the latest when they start.
