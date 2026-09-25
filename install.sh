@@ -27,7 +27,10 @@ if ! has_marketplace openai-codex; then
     run claude plugin marketplace add openai/codex-plugin-cc
   fi
 fi
-run claude plugin marketplace update
+# Refresh only our two marketplaces; a stale unrelated marketplace should not fail the install.
+for m in claude-orchestra openai-codex; do
+  claude plugin marketplace update "$m" >/dev/null 2>&1 || echo "orchestra: note: could not refresh $m (continuing)"
+done
 
 step "plugins"
 has_plugin orchestra@claude-orchestra || run claude plugin install orchestra@claude-orchestra --scope user
