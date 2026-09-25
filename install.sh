@@ -20,16 +20,11 @@ has_plugin() { claude plugin list 2>/dev/null | grep -q "$1"; }
 step "marketplaces"
 has_marketplace claude-orchestra || run claude plugin marketplace add "$here"
 if ! has_marketplace openai-codex; then
-  if ! claude plugin marketplace add openai/codex-plugin-cc >/dev/null 2>&1; then
-    # Fallback: fetch the marketplace over HTTPS and register it from disk.
-    cache="$HOME/.cache/orchestra/codex-plugin-cc"
-    rm -rf "$cache" && mkdir -p "$cache"
-    if git clone -q --depth 1 https://github.com/openai/codex-plugin-cc "$cache" 2>/dev/null \
-       || curl -fsSL https://codeload.github.com/openai/codex-plugin-cc/tar.gz/refs/heads/main | tar xz --strip-components=1 -C "$cache"; then
-      run claude plugin marketplace add "$cache"
-    else
-      echo "orchestra: failed: could not fetch openai/codex-plugin-cc" >&2; fail=1
-    fi
+  cache="$HOME/.cache/orchestra/codex-plugin-cc"   # filled by bootstrap.sh when GitHub git access is blocked
+  if [[ -f "$cache/.claude-plugin/marketplace.json" ]]; then
+    run claude plugin marketplace add "$cache"
+  else
+    run claude plugin marketplace add openai/codex-plugin-cc
   fi
 fi
 run claude plugin marketplace update

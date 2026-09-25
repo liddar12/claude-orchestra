@@ -22,7 +22,8 @@ Codex runs through OpenAI's official plugin, [`codex@openai-codex`](https://gith
   - `agents/opus-worker.md`
   - `hooks/codex-setup.sh`: pins the Codex model; in cloud sessions also installs the Codex CLI and logs in from `OPENAI_API_KEY`
   - `hooks/routing.sh`: loads the routing rules into every session
-- `bootstrap.sh`: one-line entry point; downloads this repo to `~/claude-orchestra` and runs `install.sh`
+- `bootstrap.sh`: one-line entry point; downloads this repo to `~/claude-orchestra` and OpenAI's Codex plugin (pinned commit) to `~/.cache/orchestra`, then runs `install.sh`
+- `manifest.txt`, `vendor/codex-plugin-cc.txt`: file lists for the bootstrap; regenerate with `tools/refresh-manifests.sh` after adding files or to move the Codex plugin pin
 - `install.sh`: user-scope install for every repo on a machine or cloud environment. Safe to re-run.
 - `templates/settings.json`: model aliases merged into `~/.claude/settings.json`
 
@@ -39,7 +40,7 @@ Claude Code only trusts a GitHub-hosted plugin marketplace when it is declared i
 
 In each cloud environment (environment menu in the session title bar, then Edit):
 1. Setup script: `curl -fsSL https://raw.githubusercontent.com/liddar12/claude-orchestra/main/bootstrap.sh | bash`
-   (It downloads over HTTPS because cloud sessions can only `git clone` repos attached to that session. Output is logged to `~/.claude/orchestra-install.log`.)
+   (Cloud sessions can only `git clone` or download archives of repos attached to that session, so it downloads each file from raw.githubusercontent.com using `manifest.txt` and `vendor/codex-plugin-cc.txt`. Output is logged to `~/.claude/orchestra-install.log`.)
 2. Environment variable: `OPENAI_API_KEY`
 3. Network: allow `api.openai.com`
 

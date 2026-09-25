@@ -1,0 +1,14 @@
+.claude-plugin/marketplace.json
+README.md
+bootstrap.sh
+install.sh
+merge-settings.py
+plugins/orchestra/.claude-plugin/plugin.json
+plugins/orchestra/agents/opus-worker.md
+plugins/orchestra/hooks/codex-setup.sh
+plugins/orchestra/hooks/hooks.json
+plugins/orchestra/hooks/routing.sh
+templates/settings.json
+tools/refresh-manifests.sh
+vendor/codex-plugin-cc.txt
+manifest.txt
